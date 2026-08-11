@@ -1,0 +1,14 @@
+تشغيل المشروع:
+
+1) افتح موجه الأوامر داخل مجلد المشروع.
+2) نفّذ:
+   npm install
+   npm run dev
+
+3) افتح رابط المعاينة بدون حساب:
+   http://localhost:5173/doctor-preview
+
+أو:
+   http://localhost:5173/doctor/dashboard
+
+ملاحظة: لا تفتح ملف DoctorDashboardPage.js بالنقر المزدوج؛ فهو مكوّن React ويجب تشغيله داخل المشروع.
