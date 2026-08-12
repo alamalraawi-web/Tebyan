@@ -22,32 +22,134 @@ const TESTS = ["تحليل دم شامل", "سكر تراكمي", "وظائف ا
 const TIMES = ["09:00 ص", "10:30 ص", "12:00 م", "04:00 م", "06:00 م", "08:30 م"];
 const INITIAL = { service: "", specialty: "", doctorId: "", labId: "", test: "", channel: "video", date: "", time: "", patientName: "", phone: "", age: "", gender: "", symptoms: "", notes: "", visitMode: "branch", address: "", relation: "self", insurance: "none", emergencyAccepted: false, consent: false };
 const STORAGE_KEY = "tebyan-consultation-draft-v2";
-
-
-function TibyanPrintMark() {
+function TibyanPrintLogo({ className = "" }) {
   return (
-    <div className="cx-print-mark" aria-hidden="true">
-      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="cx-print-blue" x1="18" y1="16" x2="86" y2="102" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#16c9ca" />
-            <stop offset=".48" stopColor="#0876d9" />
-            <stop offset="1" stopColor="#073fbd" />
-          </linearGradient>
-          <linearGradient id="cx-print-green" x1="98" y1="35" x2="57" y2="105" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#49d78b" />
-            <stop offset="1" stopColor="#00a9b5" />
-          </linearGradient>
-        </defs>
-        <path d="M48 13h22a8 8 0 0 1 8 8v19h19a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H78v16c-8 8-17 13-29 17 8-7 12-16 12-27 0-12-4-23-11-34H22a8 8 0 0 1-8-8V48a8 8 0 0 1 8-8h18V21a8 8 0 0 1 8-8Z" fill="url(#cx-print-blue)" />
-        <path d="M14 61h18l5-8 6 18 6-27 6 22 5-5h15" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="73" cy="36" r="8" fill="#fff" />
-        <path d="M101 42c-8 9-16 17-21 27-6 12-5 23 0 32 11-7 19-15 23-25 5-12 4-24-2-34Z" fill="url(#cx-print-green)" />
-        <path d="M98 67c-4 9-10 17-18 24" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" />
-      </svg>
-    </div>
+    <svg
+      viewBox="0 0 512 512"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="tb-print-blue" x1="60" y1="115" x2="260" y2="470" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#1299f0" />
+          <stop offset="0.55" stopColor="#0b69df" />
+          <stop offset="1" stopColor="#073a91" />
+        </linearGradient>
+        <linearGradient id="tb-print-teal" x1="150" y1="55" x2="355" y2="385" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#18d2d4" />
+          <stop offset="1" stopColor="#0792c8" />
+        </linearGradient>
+        <linearGradient id="tb-print-green" x1="215" y1="145" x2="405" y2="455" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stopColor="#59df80" />
+          <stop offset="0.52" stopColor="#27cf91" />
+          <stop offset="1" stopColor="#12b9b2" />
+        </linearGradient>
+      </defs>
+
+      {/* جسم الطبيب والصليب الطبي */}
+      <path
+        d="M121 164h116c27 0 48 21 48 48v43h-69c-20 0-37 17-37 37v59h-58c-27 0-48-22-48-48v-91c0-27 21-48 48-48Z"
+        fill="url(#tb-print-teal)"
+      />
+      <path
+        d="M58 220h139c30 0 55 25 55 55v58c0 80-44 142-129 177 21-31 31-64 33-109H98c-30 0-54-24-54-54v-73c0-30 24-54 54-54Z"
+        fill="url(#tb-print-blue)"
+      />
+      <path
+        d="M68 305h72l17-41 21 93 24-147 25 110 16-29h65"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="12"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="224" cy="216" r="34" fill="#ffffff" />
+
+      {/* الورقة الصحية */}
+      <path
+        d="M189 377c58-42 111-98 167-177-12 64-31 117-53 162-25 54-62 97-125 136 18-34 16-73 11-121Z"
+        fill="url(#tb-print-green)"
+      />
+      <path
+        d="M253 356c38-41 73-87 116-144-6 51-16 96-32 136-20 52-52 97-109 139 34-44 32-85 25-131Z"
+        fill="url(#tb-print-blue)"
+      />
+      <path
+        d="M282 336c39 32 73 46 119 48 20 1 39-2 56-8"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="11"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        opacity=".96"
+      />
+
+      {/* المسار الدائري للخدمات */}
+      <g fill="none" stroke="url(#tb-print-teal)" strokeWidth="8" strokeLinecap="round">
+        <path d="M194 98c38-14 83-21 126-18" />
+        <path d="M349 90c64 12 118 48 150 98" />
+        <path d="M490 232c8 29 10 60 6 91" />
+        <path d="M483 352c-20 54-61 100-115 129" />
+        <path d="M322 489c-41 12-85 13-126 2" />
+        <path d="M159 480c-16-5-32-12-47-21" />
+      </g>
+
+      {/* دوائر الخدمات */}
+      <circle cx="216" cy="84" r="36" fill="url(#tb-print-teal)" />
+      <circle cx="361" cy="111" r="36" fill="url(#tb-print-blue)" />
+      <circle cx="455" cy="219" r="36" fill="url(#tb-print-blue)" />
+      <circle cx="439" cy="343" r="36" fill="url(#tb-print-teal)" />
+      <circle cx="313" cy="436" r="36" fill="url(#tb-print-green)" />
+      <circle cx="181" cy="444" r="36" fill="url(#tb-print-green)" />
+
+      {/* سماعة الطبيب */}
+      <g fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M199 68v13c0 13 8 23 19 23s19-10 19-23V68" />
+        <circle cx="199" cy="66" r="3.5" fill="#ffffff" stroke="none" />
+        <circle cx="237" cy="66" r="3.5" fill="#ffffff" stroke="none" />
+        <path d="M218 104v8c0 10 8 18 18 18s18-8 18-18v-3" />
+        <circle cx="254" cy="105" r="5" />
+      </g>
+
+      {/* سجل طبي */}
+      <g fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="343" y="91" width="36" height="43" rx="6" />
+        <path d="M354 88h14v9h-14zM351 106h20M351 117h15M351 127h18" />
+      </g>
+
+      {/* مختبر */}
+      <g fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M448 193h14M451 193v17l-13 23a7 7 0 0 0 6 10h22a7 7 0 0 0 6-10l-13-23v-17" />
+        <path d="M444 229h22" />
+      </g>
+
+      {/* دواء */}
+      <g fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m424 331 18-18a12 12 0 0 1 17 17l-18 18a12 12 0 1 1-17-17Z" />
+        <path d="m433 322 17 17" />
+      </g>
+
+      {/* تقويم */}
+      <g fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="292" y="416" width="42" height="36" rx="5" />
+        <path d="M292 428h42M303 409v12M323 409v12" />
+        <path d="M303 438h1M313 438h1M323 438h1M303 447h1M313 447h1M323 447h1" />
+      </g>
+
+      {/* تغذية */}
+      <g fill="none" stroke="#ffffff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M159 443h44c-2 16-11 25-22 25s-20-9-22-25Z" />
+        <path d="M168 437c2-8 7-13 13-17M181 437c0-8 4-14 10-18M194 437c1-6 5-10 10-13" />
+      </g>
+    </svg>
   );
 }
+
+function PhonePrintIcon(){return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.8 9 3l2 4.8-1.8 1.7a14.8 14.8 0 0 0 5.3 5.3L16.2 13l4.8 2-.8 2.4c-.5 1.4-1.8 2.3-3.3 2.2C9.9 19 5 14.1 4.4 7.1 4.3 5.6 5.2 4.3 6.6 3.8Z" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+function MailPrintIcon(){return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" strokeWidth="1.7"/><path d="m4.5 7 7.5 6 7.5-6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+function LocationPrintIcon(){return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6-5.1 6-11a6 6 0 1 0-12 0c0 5.9 6 11 6 11Z" fill="none" stroke="currentColor" strokeWidth="1.7"/><circle cx="12" cy="10" r="2.2" fill="none" stroke="currentColor" strokeWidth="1.7"/></svg>}
 
 export default function ConsultationsPage({ onSubmit, supportPhone = "800 000 000", bottomNavHeight = 72 }) {
   const [stage, setStage] = useState("service");
@@ -154,7 +256,42 @@ export default function ConsultationsPage({ onSubmit, supportPhone = "800 000 00
     } finally { setSending(false); }
   }
 
-  if (stage === "done") return <><TibyanHeader /><main dir="rtl" className="cx-root" style={{ "--cx-bottom-nav-height": `${bottomNavHeight}px` }}><div className="cx-shell"><section className="cx-success" aria-live="polite"><TibyanPrintMark /><div className="cx-success-icon">✓</div><span className="cx-badge">تم الحجز بنجاح</span><h1>موعدك أصبح جاهزاً</h1><p>احتفظ برقم الحجز، وستصلك تفاصيل الموعد على رقم الهاتف المسجل.</p><div className="cx-ticket"><small>رقم الحجز</small><strong>{booking}</strong><div><span>{service?.title}</span><span>{doctor?.name || lab?.name}</span><span>{form.date || "اليوم"} • {form.time}</span><span>الإجمالي: {total}$</span></div></div><div className="cx-success-actions"><button className="cx-primary" onClick={() => { setForm(INITIAL); setStage("service"); setBooking(""); }}>حجز خدمة جديدة</button><button className="cx-back" onClick={() => typeof window !== "undefined" && window.print()}>طباعة التأكيد</button></div></section></div><Styles /></main></>;
+  if (stage === "done") return <><TibyanHeader /><main dir="rtl" className="cx-root" style={{ "--cx-bottom-nav-height": `${bottomNavHeight}px` }}><div className="cx-shell"><section className="cx-success" aria-live="polite">
+    <div className="cx-print-letterhead" aria-hidden="true">
+      <div className="cx-print-topband">
+        <div className="cx-print-logo-wrap">
+          <TibyanPrintLogo className="cx-print-logo" />
+        </div>
+        <div className="cx-print-title">
+          <strong>تبيان</strong>
+          <span>النظام الصحي الذكي</span>
+          <small>TIBYAN SMART HEALTH SYSTEM</small>
+        </div>
+        <div className="cx-print-topline" />
+      </div>
+
+      <div className="cx-print-watermark">
+        <TibyanPrintLogo className="cx-print-watermark-logo" />
+      </div>
+
+      <div className="cx-print-arrival-note">
+        <span className="cx-print-info-mark">i</span>
+        <span>يرجى الحضور قبل الموعد بـ 10 دقائق مع إحضار البطاقة أو المستندات الخاصة.</span>
+      </div>
+
+      <div className="cx-print-slogan">
+        <span>⌁</span><strong>صحتك .. أولويتنا</strong><span>⌁</span>
+      </div>
+
+      <div className="cx-print-footer">
+        <div className="cx-print-footer-feature"><span className="cx-print-mini-icon">♡</span><strong>صحة أفضل</strong></div><i />
+        <div className="cx-print-footer-feature"><span className="cx-print-mini-icon">▦</span><strong>رعاية ذكية</strong></div><i />
+        <div className="cx-print-footer-feature"><MailPrintIcon /><strong>خدمات أسرع</strong></div><i />
+        <div className="cx-print-footer-feature"><LocationPrintIcon /><strong>مواعيد أكثر دقة</strong></div>
+      </div>
+    </div>
+    <div className="cx-success-icon">✓</div><span className="cx-badge">تم الحجز بنجاح</span><h1>موعدك أصبح جاهزاً</h1><p>احتفظ برقم الحجز، وستصلك تفاصيل الموعد على رقم الهاتف المسجل.</p><div className="cx-ticket"><small>رقم الحجز</small><strong>{booking}</strong><div><span>{service?.title}</span><span>{doctor?.name || lab?.name}</span><span>{form.date || "اليوم"} • {form.time}</span><span>الإجمالي: {total}$</span></div></div><div className="cx-success-actions"><button className="cx-primary" onClick={() => { setForm(INITIAL); setStage("service"); setBooking(""); }}>حجز خدمة جديدة</button><button className="cx-back" onClick={() => typeof window !== "undefined" && window.print()}>طباعة التأكيد</button></div>
+  </section></div><Styles /></main></>;
 
   return <><TibyanHeader /><main dir="rtl" className="cx-root" style={{ "--cx-bottom-nav-height": `${bottomNavHeight}px` }}><div className="cx-shell">
     <section className="cx-workspace">
@@ -232,94 +369,62 @@ function Styles() { return <style>{`
     @media(max-height:620px) and (orientation:landscape){.cx-hero{padding:22px}.cx-hero h1{font-size:34px}.cx-trust{margin-top:12px}.cx-side{position:static}.cx-actions{position:static;bottom:auto}.cx-doctors,.cx-labs{max-height:none}}
   @media(hover:none){.cx-service:hover{transform:none;box-shadow:0 10px 30px rgba(11,67,110,.05)}}
   @media(prefers-reduced-motion:reduce){.cx-root *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
-  .cx-print-mark{display:none}
-
+  .cx-print-letterhead{display:none}
   @media print{
-    @page{size:auto;margin:12mm}
-    html,body{background:#fff!important}
+    @page{size:A4 portrait;margin:0}
+    html,body,#root{width:210mm!important;min-width:210mm!important;max-width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
     body *{visibility:hidden!important}
     .cx-root,.cx-root *,.cx-success,.cx-success *{visibility:visible!important}
     .tibyan-shared-header,.tibyan-shared-header-spacer,.cx-success-actions{display:none!important}
-    .cx-root{
-      position:static!important;
-      width:100%!important;
-      min-height:0!important;
-      overflow:visible!important;
-      padding:0!important;
-      margin:0!important;
-      background:#fff!important;
-    }
-    .cx-shell{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
-    .cx-success{
-      position:relative!important;
-      isolation:isolate;
-      width:100%!important;
-      max-width:760px!important;
-      min-height:245mm;
-      margin:0 auto!important;
-      padding:26mm 18mm 18mm!important;
-      overflow:hidden!important;
-      border:1px solid #dce8ef!important;
-      border-radius:0!important;
-      background:#fff!important;
-      box-shadow:none!important;
-      color:#102c46!important;
-      print-color-adjust:exact;
-      -webkit-print-color-adjust:exact;
-    }
-    .cx-success:before{
-      content:"تبيان | تقرير طبي";
-      position:absolute;
-      top:9mm;
-      right:18mm;
-      left:18mm;
-      padding-bottom:5mm;
-      border-bottom:1px solid #dce8ef;
-      color:#075695;
-      font-size:13px;
-      font-weight:900;
-      text-align:right;
-      letter-spacing:0;
-    }
-    .cx-success:after{
-      content:"TIBYAN • صحتك أوضح";
-      position:absolute;
-      right:18mm;
-      bottom:9mm;
-      left:18mm;
-      padding-top:4mm;
-      border-top:1px solid #e5edf2;
-      color:#7b94a4;
-      font-size:9px;
-      font-weight:700;
-      text-align:center;
-    }
-    .cx-print-mark{
-      display:block!important;
-      position:absolute!important;
-      z-index:0!important;
-      top:50%!important;
-      left:50%!important;
-      width:112mm!important;
-      height:112mm!important;
-      transform:translate(-50%,-48%)!important;
-      opacity:.055!important;
-      pointer-events:none!important;
-      print-color-adjust:exact;
-      -webkit-print-color-adjust:exact;
-    }
-    .cx-print-mark svg{width:100%!important;height:100%!important;display:block!important}
-    .cx-success>*:not(.cx-print-mark){position:relative;z-index:1}
-    .cx-success-icon{width:68px!important;height:68px!important;margin-top:5mm!important}
-    .cx-success h1{font-size:30px!important}
-    .cx-success p{font-size:12px!important}
-    .cx-ticket{
-      margin-top:20px!important;
-      padding:18px!important;
-      border:1px solid #c9dce6!important;
-      background:rgba(248,251,253,.88)!important;
-      print-color-adjust:exact;
-      -webkit-print-color-adjust:exact;
-    }
+    .cx-root{position:fixed!important;inset:0!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
+    .cx-shell{width:210mm!important;height:297mm!important;max-width:none!important;margin:0!important;padding:0!important;overflow:hidden!important}
+    .cx-success{position:relative!important;isolation:isolate!important;box-sizing:border-box!important;width:210mm!important;height:297mm!important;min-height:297mm!important;max-height:297mm!important;max-width:none!important;margin:0!important;padding:64mm 13mm 42mm!important;overflow:hidden!important;border:0!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;color:#102c46!important;text-align:center!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+
+    .cx-print-letterhead{display:block!important;position:absolute!important;inset:0!important;width:210mm!important;height:297mm!important;z-index:0!important;pointer-events:none!important;overflow:hidden!important}
+
+    .cx-print-topband{position:absolute!important;top:-1mm!important;left:-1mm!important;width:212mm!important;height:58mm!important;background:radial-gradient(circle at 11% 8%,rgba(255,255,255,.10),transparent 24%),linear-gradient(112deg,#0656a9 0%,#0877d9 58%,#099fe0 100%)!important;clip-path:polygon(0 0,100% 0,100% 76%,89% 82%,76% 84%,61% 83%,45% 79%,30% 72%,14% 65%,0 68%)!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .cx-print-topband:before{content:"";position:absolute;left:-3mm;right:-3mm;bottom:-4mm;height:18mm;background:#fff;clip-path:polygon(0 28%,12% 13%,25% 21%,40% 39%,56% 59%,73% 63%,87% 56%,100% 43%,100% 100%,0 100%);z-index:2}
+    .cx-print-topband:after{content:"";position:absolute;left:-2mm;right:-2mm;bottom:-.5mm;height:8.5mm;background:linear-gradient(90deg,#22c9e1 0%,#12b8da 46%,#08bfa2 76%,#05b45e 100%);clip-path:polygon(0 42%,13% 22%,28% 34%,45% 53%,62% 68%,78% 67%,91% 55%,100% 41%,100% 76%,90% 83%,78% 90%,62% 92%,45% 78%,28% 56%,13% 42%,0 64%);opacity:.98;z-index:3}
+
+    .cx-print-logo-wrap{position:absolute!important;top:3.8mm!important;right:6mm!important;width:35mm!important;height:35mm!important;display:grid!important;place-items:center!important;overflow:visible!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:4!important}
+    .cx-print-logo{width:100%!important;height:100%!important;display:block!important;overflow:visible!important;filter:drop-shadow(0 .8mm 1.2mm rgba(0,52,112,.14))!important}
+
+    .cx-print-title{position:absolute!important;top:7mm!important;right:47mm!important;display:grid!important;gap:.55mm!important;color:#fff!important;text-align:right!important;direction:rtl!important;z-index:4!important;min-width:56mm!important}
+    .cx-print-title strong{font-size:25pt!important;line-height:1!important;font-weight:900!important;letter-spacing:-.25mm!important}
+    .cx-print-title span{font-size:10.7pt!important;font-weight:800!important;line-height:1.05!important}
+    .cx-print-title small{font-size:6.2pt!important;line-height:1!important;font-weight:700!important;letter-spacing:.18mm!important;opacity:.97!important}
+
+    .cx-print-topline{position:absolute!important;top:34mm!important;right:45mm!important;width:58mm!important;height:7mm!important;z-index:4!important;opacity:.74!important}
+    .cx-print-topline:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 6%,#21d7d7 6% 32%,transparent 32% 36%,#21d7d7 36% 39%,transparent 39% 44%,#21d7d7 44% 47%,transparent 47% 51%,#21d7d7 51% 54%,transparent 54% 62%,#1ecf88 62% 91%,transparent 91%);clip-path:polygon(0 48%,28% 48%,33% 48%,36% 8%,40% 92%,44% 34%,48% 60%,53% 48%,100% 48%,100% 55%,54% 55%,48% 68%,44% 45%,40% 100%,35% 22%,32% 55%,0 55%)}
+
+    .cx-print-watermark{position:absolute!important;top:57%!important;left:50%!important;width:112mm!important;height:112mm!important;transform:translate(-50%,-50%)!important;opacity:.085!important;z-index:0!important}
+    .cx-print-watermark-logo{width:100%!important;height:100%!important;display:block!important;overflow:visible!important;filter:saturate(.92)!important}
+
+    .cx-success>*:not(.cx-print-letterhead){position:relative!important;z-index:2!important}
+    .cx-success-icon{width:23mm!important;height:23mm!important;margin:0 auto 3.8mm!important;border-radius:50%!important;background:linear-gradient(145deg,#08aa5b,#20c978)!important;color:#fff!important;font-size:31pt!important;box-shadow:0 0 0 2.8mm rgba(20,192,104,.08),0 0 0 5.5mm rgba(20,192,104,.035)!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .cx-success .cx-badge{padding:1.7mm 4.6mm!important;background:#dff6e9!important;color:#148653!important;border:0!important;border-radius:999px!important;font-size:8.7pt!important;font-weight:900!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .cx-success h1{margin:4.5mm 0 2mm!important;font-size:27pt!important;color:#06488b!important;font-weight:900!important;letter-spacing:-.15mm!important}
+    .cx-success p{max-width:158mm!important;margin:0 auto!important;font-size:10pt!important;line-height:1.75!important;color:#3d6590!important}
+
+    .cx-ticket{width:176mm!important;max-width:none!important;margin:36mm auto 0!important;padding:5.5mm 4mm 4.8mm!important;border:1px solid #bdddf3!important;border-radius:5.5mm!important;background:rgba(249,253,255,.94)!important;box-shadow:0 1.2mm 4mm rgba(4,78,142,.04)!important;overflow:hidden!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .cx-ticket:before{content:"رقم الحجز";display:block!important;width:calc(100% - 4mm)!important;margin:-3.2mm auto 1.2mm!important;padding:1.4mm 0!important;border-radius:999px!important;background:linear-gradient(90deg,#eaf6ff,#dcefff,#eaf6ff)!important;color:#2c6798!important;font-size:8.5pt!important;font-weight:900!important}
+    .cx-ticket>small{display:none!important}
+    .cx-ticket strong{display:block!important;margin:0 0 4mm!important;font-size:24pt!important;color:#07589d!important;letter-spacing:.55mm!important}
+    .cx-ticket div{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:0!important;border-top:1px solid #d8eaf6!important;padding-top:3.6mm!important}
+    .cx-ticket div span{position:relative!important;display:grid!important;place-items:center!important;min-height:13mm!important;padding:2mm 2.5mm!important;border:0!important;border-left:1px solid #dcecf7!important;background:transparent!important;color:#315f87!important;font-size:8.4pt!important;font-weight:800!important;line-height:1.35!important}
+    .cx-ticket div span:last-child{border-left:0!important}
+
+    .cx-print-arrival-note{position:absolute!important;left:50%!important;bottom:39mm!important;transform:translateX(-50%)!important;width:166mm!important;min-height:10mm!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3mm!important;padding:2mm 5mm!important;border-radius:999px!important;background:#e6f3fc!important;color:#2f6090!important;font-size:8.4pt!important;font-weight:700!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .cx-print-info-mark{width:6mm!important;height:6mm!important;border-radius:50%!important;background:#0874c9!important;color:#fff!important;display:grid!important;place-items:center!important;font-family:Arial,sans-serif!important;font-size:9pt!important;font-weight:900!important}
+
+    .cx-print-slogan{position:absolute!important;left:50%!important;bottom:29.3mm!important;transform:translateX(-50%)!important;display:flex!important;align-items:center!important;gap:3mm!important;color:#074b88!important;font-size:10.5pt!important;white-space:nowrap!important}
+    .cx-print-slogan span{color:#0b80d2!important;font-size:16pt!important;line-height:1!important}
+
+    .cx-print-footer{position:absolute!important;left:-1mm!important;bottom:-1mm!important;width:212mm!important;height:30mm!important;display:grid!important;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr!important;align-items:end!important;gap:4.5mm!important;padding:10mm 11mm 5mm!important;background:linear-gradient(115deg,#079fd6 0%,#0876d9 48%,#064d9c 100%)!important;clip-path:polygon(0 28%,14% 10%,30% 12%,47% 20%,64% 17%,82% 9%,100% 2%,100% 100%,0 100%)!important;color:#fff!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .cx-print-footer:before{content:"";position:absolute;top:0;left:0;right:0;height:5.5mm;background:linear-gradient(90deg,#0fc1e6 0%,#11c4b3 58%,#10b96e 100%);clip-path:polygon(0 50%,18% 18%,38% 30%,57% 55%,77% 34%,100% 9%,100% 40%,78% 67%,57% 82%,38% 56%,18% 46%,0 76%)}
+    .cx-print-footer>i{width:.25mm!important;height:10mm!important;background:rgba(255,255,255,.42)!important;align-self:end!important}
+    .cx-print-footer-feature{position:relative!important;z-index:2!important;display:grid!important;justify-items:center!important;gap:1mm!important;color:#fff!important;font-size:8.1pt!important;font-weight:800!important;white-space:nowrap!important}
+    .cx-print-footer-feature svg{width:7mm!important;height:7mm!important;color:#fff!important}
+    .cx-print-mini-icon{width:7mm!important;height:7mm!important;border:1px solid rgba(255,255,255,.9)!important;border-radius:50%!important;display:grid!important;place-items:center!important;color:#fff!important;font-size:13pt!important;line-height:1!important}
   }
 `}</style>; }
