@@ -236,7 +236,7 @@ export default function PharmacyDashboard() {
           <header className="pharmacy-panel-head">
             <div>
               <span className="pharmacy-panel-icon purple"><Plus /></span>
-              <div><h2>إجراءات سريعة</h2><p>اختصارات للمهام المتكررة</p></div>
+              <div><h2>إجراءات سريعه</h2><p>اختصارات للمهام المتكررة</p></div>
             </div>
           </header>
           <div className="pharmacy-quick-actions">
