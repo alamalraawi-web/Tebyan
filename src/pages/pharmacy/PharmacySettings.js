@@ -198,6 +198,19 @@ export default function PharmacySettings() {
               </form>
             </section>
           )}
+
+          {activeTab !== 'security' && (
+            <div className="pharmacy-settings-mobile-save">
+              <button
+                type="button"
+                className={`pharmacy-btn ${saved ? 'pharmacy-btn-success' : 'pharmacy-btn-primary'}`}
+                onClick={saveSettings}
+              >
+                {saved ? <CheckCircle2 /> : <Save />}
+                {saved ? 'تم حفظ التغييرات' : 'حفظ التغييرات'}
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </div>
