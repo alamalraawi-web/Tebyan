@@ -64,23 +64,40 @@ export default function PharmacyLayout() {
   }, [location.pathname]);
 
   useEffect(() => {
-    document.body.classList.add('pharmacy-dashboard-active');
-    return () => document.body.classList.remove('pharmacy-dashboard-active');
+    const html = document.documentElement;
+    const body = document.body;
+
+    html.classList.add('pharmacy-dashboard-root');
+    body.classList.add('pharmacy-dashboard-active');
+
+    return () => {
+      html.classList.remove('pharmacy-dashboard-root');
+      body.classList.remove('pharmacy-dashboard-active');
+    };
   }, []);
 
   useEffect(() => {
     if (!menuOpen) return undefined;
 
-    const previousOverflow = document.body.style.overflow;
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
     const closeOnEscape = (event) => {
       if (event.key === 'Escape') setMenuOpen(false);
     };
 
-    document.body.style.overflow = 'hidden';
+    /*
+      نقفل المستند كله فقط أثناء فتح القائمة.
+      قفل body وحده كان يسبب اختلافًا بين وضع الكمبيوتر ووضع الهاتف.
+    */
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
     window.addEventListener('keydown', closeOnEscape);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
       window.removeEventListener('keydown', closeOnEscape);
     };
   }, [menuOpen]);
@@ -149,11 +166,6 @@ export default function PharmacyLayout() {
         </nav>
 
         <div className="pharmacy-sidebar-bottom">
-          <NavLink className="pharmacy-patient-view" to="/main/pharmacy">
-            <Store />
-            <span>فتح واجهة المريض</span>
-          </NavLink>
-
           <div className="pharmacy-mini-profile">
             <div className="pharmacy-avatar">{pharmacistName.trim().charAt(0) || 'ص'}</div>
             <div>
