@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
  * مساعد تبيان الذكي - مكوّن مشترك لجميع الصفحات.
  * ضع مفتاح Google AI Studio الجديد هنا فقط.
  */
-const GOOGLE_AI_API_KEY = "AQ.Ab8RN6KSEgnDOZkfYQRWDzJY9XwtyU0HnfRaqH5kcG3G-NO8TQ";
+const GOOGLE_AI_API_KEY = "AQ.Ab8RN6JRTWufJHXmou84qj7pkNPlpPh13BQpLwwBtIuG7O_xFQ";
 const GOOGLE_AI_MODELS = ["gemini-3.5-flash", "gemini-3.5-flash-lite"];
 const GOOGLE_AI_STREAM_URL = (model) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
