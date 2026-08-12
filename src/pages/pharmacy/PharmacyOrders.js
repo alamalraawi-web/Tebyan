@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CalendarDays,
@@ -71,23 +70,6 @@ export default function PharmacyOrders() {
   const [prescriptionOnly, setPrescriptionOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
-  useEffect(() => {
-    if (!showCreate) return undefined;
-
-    const html = document.documentElement;
-    const body = document.body;
-    const previousHtmlOverflow = html.style.overflow;
-    const previousBodyOverflow = body.style.overflow;
-
-    html.style.overflow = 'hidden';
-    body.style.overflow = 'hidden';
-
-    return () => {
-      html.style.overflow = previousHtmlOverflow;
-      body.style.overflow = previousBodyOverflow;
-    };
-  }, [showCreate]);
-
   const [newOrder, setNewOrder] = useState({
     customerName: '',
     customerPhone: '',
@@ -316,8 +298,8 @@ export default function PharmacyOrders() {
         )}
       </section>
 
-      {showCreate && createPortal(
-        <div className="pharmacy-modal-layer pharmacy-mobile-sheet-layer" role="presentation" dir="rtl">
+      {showCreate && (
+        <div className="pharmacy-modal-layer" role="presentation">
           <button type="button" className="pharmacy-modal-backdrop" onClick={() => setShowCreate(false)} aria-label="إغلاق" />
           <form className="pharmacy-modal pharmacy-create-order-modal" onSubmit={createOrder}>
             <header>
@@ -338,8 +320,7 @@ export default function PharmacyOrders() {
               <button type="submit" className="pharmacy-btn pharmacy-btn-primary"><Plus /> إنشاء الطلب</button>
             </footer>
           </form>
-        </div>,
-        document.body,
+        </div>
       )}
     </div>
   );
