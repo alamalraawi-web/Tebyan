@@ -69,7 +69,6 @@ const moreItems = [
   { to: '/pharmacy/notifications', label: 'الإشعارات', icon: Bell, badgeKey: 'unreadNotifications' },
   { to: '/pharmacy/reports', label: 'التقارير', icon: BarChart3 },
   { to: '/pharmacy/settings', label: 'الإعدادات', icon: Settings },
-  { to: '/main/pharmacy', label: 'واجهة المريض', icon: Store },
 ];
 
 export default function PharmacyBottomNavigation({ counts = {}, hidden = false, onLogout }) {
@@ -84,16 +83,21 @@ export default function PharmacyBottomNavigation({ counts = {}, hidden = false, 
   useEffect(() => {
     if (!moreOpen) return undefined;
 
-    const previousOverflow = document.body.style.overflow;
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
     const handleKey = (event) => {
       if (event.key === 'Escape') setMoreOpen(false);
     };
 
-    document.body.style.overflow = 'hidden';
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKey);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
       window.removeEventListener('keydown', handleKey);
     };
   }, [moreOpen]);

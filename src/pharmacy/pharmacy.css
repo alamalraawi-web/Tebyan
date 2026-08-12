@@ -9911,17 +9911,27 @@
 }
 
 @media (max-width: 800px) {
-  html:has(.pharmacy-app),
+  html.pharmacy-dashboard-root {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+  }
+
   body.pharmacy-dashboard-active,
   body.pharmacy-dashboard-active #root {
     width: 100%;
     max-width: 100%;
     min-height: 100%;
-    overflow-x: hidden;
+    overflow: visible;
   }
 
   body.pharmacy-dashboard-active {
-    overscroll-behavior-y: none;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y;
   }
 
   .pharmacy-app {
@@ -10577,5 +10587,68 @@
 @media (max-width: 980px) {
   .pharmacy-page:not(.pharmacy-chat-main) {
     padding-bottom: calc(116px + env(safe-area-inset-bottom));
+  }
+}
+
+/* =========================================================
+   تمرير لوحة الصيدلية على الهاتف — الإصلاح النهائي
+   =========================================================
+   يجب أن يكون html هو حاوية التمرير الوحيدة. استخدام
+   overflow-x:hidden على body كان يحوله إلى حاوية تمرير غير
+   قابلة للحركة، ومع overscroll-behavior:none كانت عجلة الماوس
+   والسحب لا ينتقلان إلى html إلا عند فتح القائمة الجانبية.
+========================================================= */
+@media (max-width: 980px) {
+  html.pharmacy-dashboard-root {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    max-height: none;
+    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: auto;
+    overscroll-behavior-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  body.pharmacy-dashboard-active {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    max-height: none;
+    margin: 0;
+    overflow: visible;
+    overscroll-behavior-y: auto;
+    touch-action: pan-y;
+  }
+
+  body.pharmacy-dashboard-active #root {
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .pharmacy-app:not(.pharmacy-chat-mode),
+  .pharmacy-app:not(.pharmacy-chat-mode) .pharmacy-shell,
+  .pharmacy-page:not(.pharmacy-chat-main) {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .pharmacy-app:not(.pharmacy-chat-mode) {
+    min-height: 100dvh;
+    padding-bottom: 0;
+  }
+
+  .pharmacy-app:not(.pharmacy-chat-mode) .pharmacy-shell {
+    min-height: 100dvh;
+  }
+
+  .pharmacy-page:not(.pharmacy-chat-main) {
+    padding-bottom: calc(130px + env(safe-area-inset-bottom));
   }
 }
