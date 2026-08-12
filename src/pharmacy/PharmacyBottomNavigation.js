@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   BarChart3,
   Bell,
@@ -127,11 +127,6 @@ export default function PharmacyBottomNavigation({ counts = {}, hidden = false, 
     navigate(item.href);
   }
 
-  function handleMoreItem(to) {
-    setMoreOpen(false);
-    navigate(to);
-  }
-
   return (
     <>
       <nav
@@ -213,22 +208,13 @@ export default function PharmacyBottomNavigation({ counts = {}, hidden = false, 
         </header>
 
         <div className="pharmacy-more-grid">
-          {moreItems.map(({ to, label, icon: Icon, badgeKey }) => {
-            const active = location.pathname.startsWith(to);
-            return (
-              <button
-                key={to}
-                type="button"
-                className={active ? 'active' : ''}
-                aria-current={active ? 'page' : undefined}
-                onClick={() => handleMoreItem(to)}
-              >
-                <span><Icon /></span>
-                <strong>{label}</strong>
-                {badgeKey && counts[badgeKey] > 0 && <b>{counts[badgeKey]}</b>}
-              </button>
-            );
-          })}
+          {moreItems.map(({ to, label, icon: Icon, badgeKey }) => (
+            <NavLink key={to} to={to} onClick={() => setMoreOpen(false)}>
+              <span><Icon /></span>
+              <strong>{label}</strong>
+              {badgeKey && counts[badgeKey] > 0 && <b>{counts[badgeKey]}</b>}
+            </NavLink>
+          ))}
         </div>
 
         <button type="button" className="pharmacy-more-logout" onClick={onLogout}>
