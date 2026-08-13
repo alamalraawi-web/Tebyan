@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   AlertTriangle,
   Boxes,
@@ -64,6 +65,23 @@ export default function PharmacyInventory() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+
+  useEffect(() => {
+    if (!modalOpen) return undefined;
+
+    const html = document.documentElement;
+    const body = document.body;
+    const previousHtmlOverflow = html.style.overflow;
+    const previousBodyOverflow = body.style.overflow;
+
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+
+    return () => {
+      html.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyOverflow;
+    };
+  }, [modalOpen]);
 
   const categories = useMemo(() => [...new Set(data.inventory.map((item) => item.category))].sort(), [data.inventory]);
   const filtered = useMemo(() => {
@@ -209,8 +227,8 @@ export default function PharmacyInventory() {
         {!filtered.length && <div className="pharmacy-empty-state"><Search /><h3>لا توجد أدوية مطابقة</h3><p>غيّر البحث أو التصفية، أو أضف الدواء إلى المخزون.</p><button type="button" onClick={openCreate}>إضافة دواء جديد</button></div>}
       </section>
 
-      {modalOpen && (
-        <div className="pharmacy-modal-layer">
+      {modalOpen && createPortal(
+        <div className="pharmacy-modal-layer pharmacy-mobile-sheet-layer" dir="rtl">
           <button type="button" className="pharmacy-modal-backdrop" onClick={() => setModalOpen(false)} aria-label="إغلاق" />
           <form className="pharmacy-modal pharmacy-medicine-modal" onSubmit={saveMedicine}>
             <header><div><span><Pill /></span><div><h2>{editingId ? 'تعديل بيانات الدواء' : 'إضافة دواء جديد'}</h2><p>أدخل معلومات الصنف والمخزون بدقة.</p></div></div><button type="button" onClick={() => setModalOpen(false)}><X /></button></header>
@@ -232,7 +250,8 @@ export default function PharmacyInventory() {
             </div>
             <footer><button type="button" className="pharmacy-btn pharmacy-btn-soft" onClick={() => setModalOpen(false)}>إلغاء</button><button type="submit" className="pharmacy-btn pharmacy-btn-primary"><Plus /> {editingId ? 'حفظ التعديلات' : 'إضافة للمخزون'}</button></footer>
           </form>
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   );
