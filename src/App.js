@@ -19,6 +19,7 @@ import BottomNavigation from "./components/BottomNavigation.js";
 const LoginPage = lazy(() => import("./pages/LoginPage.js"));
 const SignupPage = lazy(() => import("./pages/SignupPage.js"));
 const HomePage = lazy(() => import("./pages/HomePage.js"));
+const TibyanSettings = lazy(() => import("./components/TibyanSettings.js"));
 const PharmacyPage = lazy(() => import("./pages/PharmacyPage.js"));
 const NutritionPage = lazy(() => import("./pages/NutritionPage.js"));
 const LabsPage = lazy(() => import("./pages/LabsPage.js"));
@@ -55,6 +56,7 @@ const PharmacySettings = lazy(() => import("./pages/pharmacy/PharmacySettings.js
 if (typeof window !== "undefined") {
   const prefetchRoutes = () => {
     void import("./pages/HomePage.js");
+    void import("./components/TibyanSettings.js");
     void import("./pages/PharmacyPage.js");
     void import("./pages/NutritionPage.js");
     void import("./pages/LabsPage.js");
@@ -245,6 +247,12 @@ function AppRoutes() {
       <Route
         path="/home"
         element={<HomePage />}
+      />
+
+      {/* إعدادات تبيان - صفحة مستقلة */}
+      <Route
+        path="/main/settings"
+        element={<TibyanSettings />}
       />
 
 
@@ -504,6 +512,7 @@ function AppContent() {
     "/register",
     "/forgot-password",
     "/reset-password",
+    "/main/settings",
   ].includes(location.pathname)
     || location.pathname.startsWith("/doctor/")
     || location.pathname === "/pharmacy"

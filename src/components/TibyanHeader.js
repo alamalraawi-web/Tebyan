@@ -1,90 +1,55 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import TibyanAI from "./TibyanAI";
 
-function ArrowIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
-      <path d="M19 12H5M11 18l-6-6 6-6" />
-    </svg>
-  );
+const SETTINGS_STORAGE_KEY = "tibyan-app-settings-v1";
+const AI_REST_DURATION_MS = 10_000;
+
+const DEFAULT_SETTINGS = {
+  language: "ar",
+  theme: "system",
+  largeText: false,
+  highContrast: false,
+  reducedMotion: false,
+  dataSaver: false,
+  hideSensitivePreview: true,
+  lockOnBackground: true,
+};
+
+const LANGUAGE_DIRECTIONS = { ar: "rtl", en: "ltr", fr: "ltr", es: "ltr", de: "ltr", tr: "ltr", zh: "ltr" };
+
+function readSavedSettings() {
+  if (typeof window === "undefined") return DEFAULT_SETTINGS;
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(SETTINGS_STORAGE_KEY) || "{}");
+    return { ...DEFAULT_SETTINGS, ...saved };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
 }
 
-function LabIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" {...props}>
-      <path d="M9 3h6M10 3v6l-5.3 8.8A2 2 0 0 0 6.4 21h11.2a2 2 0 0 0 1.7-3.2L14 9V3" />
-      <path d="M7.5 16h9M10 13h4" />
-    </svg>
-  );
+function applySavedSettings(settings = readSavedSettings()) {
+  if (typeof document === "undefined" || typeof window === "undefined") return;
+  const root = document.documentElement;
+  const media = window.matchMedia?.("(prefers-color-scheme: dark)");
+  const resolvedTheme = settings.theme === "system" ? (media?.matches ? "dark" : "light") : settings.theme;
+  root.lang = settings.language || "ar";
+  root.dir = LANGUAGE_DIRECTIONS[settings.language] || "rtl";
+  root.dataset.tibyanTheme = resolvedTheme;
+  root.style.colorScheme = resolvedTheme;
+  root.classList.toggle("tibyan-text-large", Boolean(settings.largeText));
+  root.classList.toggle("tibyan-high-contrast", Boolean(settings.highContrast));
+  root.classList.toggle("tibyan-reduced-motion", Boolean(settings.reducedMotion));
+  root.classList.toggle("tibyan-data-saver", Boolean(settings.dataSaver));
+  root.classList.toggle("tibyan-hide-sensitive-preview", Boolean(settings.hideSensitivePreview));
+  root.classList.toggle("tibyan-privacy-lock", Boolean(settings.lockOnBackground));
 }
 
-function NutritionIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" {...props}>
-      <path d="M4 11h16a8 8 0 0 1-16 0Z" />
-      <path d="M8 7c1.5-2 3.5-2 5-4M14 8c1-1.8 2.8-2.2 4-3.5M7 19h10" />
-    </svg>
-  );
-}
-
-function PharmacyIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" {...props}>
-      <path d="m8.5 4.5 11 11a4.24 4.24 0 0 1-6 6l-11-11a4.24 4.24 0 1 1 6-6Z" />
-      <path d="m7 15 8-8" />
-    </svg>
-  );
-}
-
-function ConsultationIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" {...props}>
-      <path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z" />
-      <path d="M8 13h3v3H8zM14 13h2M14 16h2" />
-    </svg>
-  );
-}
-
-function HomeIcon(props) {
+function SettingsIcon(props) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" {...props}>
-      <path d="m3 11 9-8 9 8" />
-      <path d="M5 10v10h14V10M9 20v-6h6v6" />
-    </svg>
-  );
-}
-
-function ReportIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" {...props}>
-      <path d="M5 3h14a2 2 0 0 1 2 2v16H3V5a2 2 0 0 1 2-2Z" />
-      <path d="M7 16v-3M12 16V8M17 16v-5M7 19h10" />
-    </svg>
-  );
-}
-
-function LogoutIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" {...props}>
-      <path d="M10 17l5-5-5-5M15 12H3" />
-      <path d="M14 4h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5" />
-    </svg>
-  );
-}
-
-function MenuIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
-      <path d="M5 7h14M5 12h14M5 17h14" />
-    </svg>
-  );
-}
-
-function CloseIcon(props) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" {...props}>
-      <path d="m6 6 12 12M18 6 6 18" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.04 1.56V21h-4v-.08A1.7 1.7 0 0 0 9 19.36a1.7 1.7 0 0 0-1.87.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.64 15 1.7 1.7 0 0 0 3.08 14H3v-4h.08A1.7 1.7 0 0 0 4.64 9a1.7 1.7 0 0 0-.34-1.87l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.64 1.7 1.7 0 0 0 10 3.08V3h4v.08A1.7 1.7 0 0 0 15 4.64a1.7 1.7 0 0 0 1.87-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.36 9 1.7 1.7 0 0 0 20.92 10H21v4h-.08A1.7 1.7 0 0 0 19.4 15Z" />
     </svg>
   );
 }
@@ -342,526 +307,159 @@ export function TibyanLogo({ className = "" }) {
   );
 }
 
-function normalizePath(path) {
-  const normalized = String(path || "/").replace(/\/+$/, "");
-  return normalized || "/";
-}
-
 /**
- * الشريط العلوي الموحد لمشروع تبيان.
- * يوضع داخل src/components بجانب TibyanAI.js.
+ * الشريط العلوي الموحد لتبيان.
+ * زر الإعدادات ينتقل مباشرة إلى صفحة /main/settings.
  */
-export default function TibyanHeader({
-  homePath = "/main",
-  reserveSpace = true,
-}) {
+export default function TibyanHeader({ homePath = "/home", settingsPath = "/main/settings", reserveSpace = true }) {
   const navigate = useNavigate();
-  const location = useLocation();
-  const headerRef = useRef(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [aiMoving, setAiMoving] = useState(false);
+  const [aiResting, setAiResting] = useState(false);
+  const aiStatusRef = useRef(null);
+  const aiMotionRef = useRef(false);
+  const aiRestTimerRef = useRef(null);
 
-  const currentPath = normalizePath(location.pathname);
-  const normalizedHomePath = normalizePath(homePath);
-  const isHomePage = currentPath === normalizedHomePath;
+  const setMotionUiImmediately = (moving) => {
+    // نبدّل الكلاس مباشرة على العنصر نفسه قبل تحديث React،
+    // حتى تختفي/تظهر الرسالة والنقاط في نفس لحظة إشارة الحركة دون أي تأخير بصري.
+    const host = aiStatusRef.current;
+    if (host) {
+      host.classList.toggle("tibyan-ai-is-moving", Boolean(moving));
+      host.classList.toggle("tibyan-ai-is-still", !moving);
+    }
+    setAiMoving(Boolean(moving));
+  };
+
+  const startAiRestPeriod = () => {
+    if (aiRestTimerRef.current) window.clearTimeout(aiRestTimerRef.current);
+    setAiResting(true);
+    aiRestTimerRef.current = window.setTimeout(() => {
+      aiRestTimerRef.current = null;
+      setAiResting(false);
+    }, AI_REST_DURATION_MS);
+  };
+
+  const handleAiMotionChange = (moving) => {
+    const nextMoving = Boolean(moving);
+
+    // نتجاهل الإشارات المكررة فقط؛ التبديل الحقيقي بين الحركة والثبات يُنفّذ فورًا.
+    if (aiMotionRef.current === nextMoving) return;
+    aiMotionRef.current = nextMoving;
+
+    if (nextMoving) {
+      // مصدر الحقيقة هو الحركة الفعلية للأيقونة: أول ما تبدأ نخفي الواجهة فورًا.
+      if (aiRestTimerRef.current) {
+        window.clearTimeout(aiRestTimerRef.current);
+        aiRestTimerRef.current = null;
+      }
+      setAiResting(false);
+      setMotionUiImmediately(true);
+      return;
+    }
+
+    // أول ما تنتهي الحركة نُظهر الرسالة والنقاط فورًا، ثم نبدأ ثبات 10 ثوانٍ.
+    setMotionUiImmediately(false);
+    startAiRestPeriod();
+  };
 
   useEffect(() => {
     document.body.classList.add("tibyan-shared-header-active");
-
+    applySavedSettings();
+    const onSettingsChanged = (event) => applySavedSettings(event?.detail || readSavedSettings());
+    const onStorage = (event) => { if (event.key === SETTINGS_STORAGE_KEY) applySavedSettings(); };
+    window.addEventListener("tibyan:settings-changed", onSettingsChanged);
+    window.addEventListener("storage", onStorage);
     return () => {
       document.body.classList.remove("tibyan-shared-header-active");
+      window.removeEventListener("tibyan:settings-changed", onSettingsChanged);
+      window.removeEventListener("storage", onStorage);
+      if (aiRestTimerRef.current) window.clearTimeout(aiRestTimerRef.current);
     };
   }, []);
 
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const handlePointerDown = (event) => {
-      if (mobileMenuOpen && !headerRef.current?.contains(event.target)) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [mobileMenuOpen]);
-
-  const goHome = () => {
-    setMobileMenuOpen(false);
-
-    if (isHomePage) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-
-    navigate(homePath);
-  };
-
-  const goToReports = () => {
-    setMobileMenuOpen(false);
-
-    if (isHomePage) {
-      document.getElementById("daily-reports")?.scrollIntoView({ behavior: "smooth" });
-      return;
-    }
-
-    sessionStorage.setItem("tibyan-scroll-target", "daily-reports");
-    navigate(homePath);
-  };
-
-  const goTo = (path) => {
-    setMobileMenuOpen(false);
-    navigate(path);
-  };
-
-  const logout = () => {
-    localStorage.removeItem("tebyan-user");
-    localStorage.removeItem("tebyan-profile");
-    sessionStorage.clear();
-    setMobileMenuOpen(false);
-    navigate("/login", { replace: true });
-  };
-
-  const menuItems = [
-    ["الفحوصات والمختبرات", LabIcon, () => goTo("/main/labs")],
-    ["التغذية العلاجية", NutritionIcon, () => goTo("/main/scans")],
-    ["الرئيسية", HomeIcon, goHome],
-    ["الصيدلية الذكية", PharmacyIcon, () => goTo("/main/pharmacy")],
-    ["الاستشارات والمواعيد", ConsultationIcon, () => goTo("/main/consultations")],
-    ["التقارير اليومية", ReportIcon, goToReports],
-  ];
-
   return (
     <>
-      <header
-        ref={headerRef}
-        dir="rtl"
-        className="tibyan-shared-header home-icon-topbar"
-        aria-label="التنقل الرئيسي"
-      >
-        <button
-          type="button"
-          className="home-brand-button"
-          onClick={goHome}
-          aria-label="الصفحة الرئيسية"
-        >
+      <header dir="rtl" className="tibyan-shared-header home-icon-topbar" aria-label="التنقل الرئيسي">
+        <button type="button" className="home-brand-button" onClick={() => navigate(homePath)} aria-label="الصفحة الرئيسية">
           <span className="home-brand-logo"><TibyanLogo /></span>
-          <span className="home-brand-copy">
-            <strong>تبيان</strong>
-            <small>صحتك أوضح</small>
-          </span>
+          <span className="home-brand-copy"><strong>تبيان</strong><small>صحتك أوضح</small></span>
         </button>
-
         <div className="home-top-actions">
-          <TibyanAI variant="header" />
-
+          <div
+            ref={aiStatusRef}
+            className={`tibyan-header-ai-status ${aiMoving ? "tibyan-ai-is-moving" : "tibyan-ai-is-still"}${aiResting ? " tibyan-ai-resting" : ""}`}
+          >
+            <TibyanAI
+              variant="header"
+              onMotionChange={handleAiMotionChange}
+              restDuration={AI_REST_DURATION_MS}
+              restDurationMs={AI_REST_DURATION_MS}
+            />
+            <span className="tibyan-ai-status-ui" aria-hidden={aiMoving ? "true" : "false"}>
+              <span className="tibyan-ai-thinking-dots" aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </span>
+              <span className="tibyan-ai-ready-hint" aria-live="polite">
+                <span>أنا هنا</span>
+                <span>للمساعدة</span>
+              </span>
+            </span>
+          </div>
           <button
             type="button"
-            className={`home-mobile-menu-button ${mobileMenuOpen ? "open" : ""}`}
-            onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="tibyan-shared-mobile-menu"
-            aria-label={mobileMenuOpen ? "إغلاق القائمة" : "فتح القائمة"}
+            className="home-settings-button"
+            onClick={() => navigate(settingsPath)}
+            aria-label="إعدادات تبيان"
+            title="إعدادات تبيان"
           >
-            {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
-          </button>
-        </div>
-
-        <div
-          id="tibyan-shared-mobile-menu"
-          className={`home-mobile-menu ${mobileMenuOpen ? "open" : ""}`}
-        >
-          {menuItems.map(([label, Icon, action]) => (
-            <button key={label} type="button" onClick={action}>
-              <span><Icon /></span>
-              <strong>{label}</strong>
-              <ArrowIcon />
-            </button>
-          ))}
-
-          <button
-            type="button"
-            className="mobile-menu-logout"
-            onClick={logout}
-          >
-            <span><LogoutIcon /></span>
-            <strong>تسجيل الخروج</strong>
-            <ArrowIcon />
+            <SettingsIcon />
           </button>
         </div>
       </header>
-
       {reserveSpace && <div className="tibyan-shared-header-spacer" aria-hidden="true" />}
-
       <style>{`
-        body.tibyan-shared-header-active .tibyan-header-wrap {
-          display: none !important;
-        }
-
-        .home-icon-topbar,
-        .home-icon-topbar * {
-          box-sizing: border-box;
-        }
-
-        .home-icon-topbar {
-          position: fixed !important;
-          top: 6px !important;
-          right: 50% !important;
-          z-index: 100 !important;
-          width: min(calc(100% - 12px), 1180px) !important;
-          min-height: 58px !important;
-          margin: 0 !important;
-          padding: 6px 8px !important;
-          display: flex !important;
-          align-items: center !important;
-          justify-content: space-between !important;
-          gap: 8px !important;
-          direction: rtl;
-          border: 1px solid rgba(7, 92, 145, 0.12);
-          border-radius: 18px !important;
-          background: rgba(255,255,255,.96) !important;
-          box-shadow: 0 14px 36px rgba(3,66,112,.13) !important;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          transform: translateX(50%) !important;
-          font-family: var(--font-tibyan), "IBM Plex Sans Arabic", Tahoma, Arial, sans-serif;
-        }
-
-        .home-icon-topbar button {
-          font: inherit;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-        }
-
-        .home-brand-button {
-          width: auto;
-          min-width: 150px;
-          height: 56px;
-          flex: 0 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: flex-start;
-          gap: 10px;
-          padding: 4px 7px;
-          border: 0;
-          border-radius: 18px;
-          background: transparent;
-          text-align: right;
-        }
-
-        .home-brand-logo {
-          width: 54px;
-          height: 54px;
-          flex: 0 0 54px;
-          display: block;
-          animation: homeHeaderLogoFloat 4.6s ease-in-out infinite;
-        }
-
-        .home-brand-logo svg {
-          width: 100%;
-          height: 100%;
-          display: block;
-          overflow: visible;
-          opacity: 1;
-          shape-rendering: geometricPrecision;
-          text-rendering: geometricPrecision;
-          vector-effect: non-scaling-stroke;
-        }
-
-        .home-brand-copy {
-          min-width: 0;
-          display: grid;
-          gap: 1px;
-          line-height: 1;
-        }
-
-        .home-brand-copy strong {
-          display: block;
-          color: #075dab;
-          font-size: 20px;
-          font-weight: 900;
-          line-height: 1.15;
-        }
-
-        .home-brand-copy small {
-          color: #59a0ae;
-          font-size: 9px;
-          font-weight: 800;
-        }
-
-        .home-top-actions {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
-
-        .tibyan-shared-header .home-nav-icon {
-          position: relative;
-          width: 44px;
-          height: 44px;
-          flex: 0 0 44px;
-          display: grid;
-          place-items: center;
-          padding: 0;
-          border: 0;
-          border-radius: 0;
-          background: transparent;
-          color: #0876d9;
-          box-shadow: none;
-          cursor: pointer;
-          transition: transform .2s ease, color .2s ease, background .2s ease, box-shadow .2s ease;
-        }
-
-        .tibyan-shared-header .home-nav-icon svg {
-          width: 23px;
-          height: 23px;
-        }
-
-        .tibyan-shared-header .home-nav-icon:hover,
-        .tibyan-shared-header .home-nav-icon:focus-visible {
-          transform: translateY(-3px);
-          color: #0876d9;
-          border-color: transparent;
-          outline: none;
-          background: transparent;
-          box-shadow: none;
-        }
-
-        .home-mobile-menu-button {
-          width: 38px;
-          height: 38px;
-          flex: 0 0 38px;
-          display: grid !important;
-          place-items: center;
-          padding: 0;
-          border: 1px solid rgba(8,118,217,.13);
-          border-radius: 12px;
-          background: linear-gradient(145deg,#fff,#eefbff);
-          color: #0876d9;
-          box-shadow: 0 8px 18px rgba(3,77,132,.09);
-        }
-
-        .home-mobile-menu-button.open {
-          color: #fff;
-          border-color: transparent;
-          background: linear-gradient(145deg,#0876d9,#10b5b5);
-        }
-
-        .home-mobile-menu-button svg {
-          width: 19px;
-          height: 19px;
-        }
-
-        .home-mobile-menu {
-          position: absolute;
-          top: calc(100% + 7px);
-          right: 0;
-          left: 0;
-          display: block !important;
-          padding: 8px;
-          border: 1px solid rgba(7,92,145,.10);
-          border-radius: 18px;
-          background: rgba(255,255,255,.98);
-          box-shadow: 0 20px 50px rgba(3,66,112,.16);
-          backdrop-filter: blur(22px);
-          -webkit-backdrop-filter: blur(22px);
-          transform: translateY(-7px) scale(.98);
-          transform-origin: top center;
-          opacity: 0;
-          visibility: hidden;
-          pointer-events: none;
-          transition: .22s ease;
-        }
-
-        .home-mobile-menu.open {
-          transform: translateY(0) scale(1);
-          opacity: 1;
-          visibility: visible;
-          pointer-events: auto;
-        }
-
-        .home-mobile-menu > button {
-          width: 100%;
-          min-height: 43px;
-          display: grid;
-          grid-template-columns: 34px 1fr 17px;
-          align-items: center;
-          gap: 8px;
-          padding: 5px 7px;
-          border: 0;
-          border-radius: 12px;
-          background: transparent;
-          color: #315f7a;
-          text-align: right;
-        }
-
-        .home-mobile-menu > button + button {
-          margin-top: 2px;
-        }
-
-        .home-mobile-menu > button:hover,
-        .home-mobile-menu > button:active {
-          background: #eefaff;
-          color: #0876d9;
-        }
-
-        .home-mobile-menu > button > span {
-          width: 32px;
-          height: 32px;
-          display: grid;
-          place-items: center;
-          border-radius: 10px;
-          background: linear-gradient(145deg,#eef8ff,#edfffb);
-          color: #0876d9;
-        }
-
-        .home-mobile-menu > button > span svg {
-          width: 17px;
-          height: 17px;
-        }
-
-        .home-mobile-menu > button > strong {
-          font-size: 10.5px;
-          font-weight: 800;
-        }
-
-        .home-mobile-menu > button > svg {
-          width: 14px;
-          height: 14px;
-          opacity: .55;
-        }
-
-        .home-mobile-menu .mobile-menu-logout {
-          margin-top: 5px;
-          border-top: 1px solid rgba(239,68,68,.10);
-          color: #d93645;
-        }
-
-        .home-mobile-menu .mobile-menu-logout > span {
-          background: #fff3f3;
-          color: #d93645;
-        }
-
-        .tibyan-shared-header-spacer {
-          width: 100%;
-          height: 76px;
-          flex: 0 0 76px;
-          pointer-events: none;
-        }
-
-        .home-brand-logo .tibyan-heartbeat {
-          stroke-dasharray: 260;
-          stroke-dashoffset: 260;
-          animation: tibyanSharedHeartbeatTrace 4.2s linear infinite;
-          will-change: stroke-dashoffset, opacity;
-        }
-
-        .home-brand-logo .tibyan-leaf,
-        .home-brand-logo .tibyan-head,
-        .home-brand-logo .tibyan-blue-arc {
-          animation: none;
-        }
-
-        @keyframes homeHeaderLogoFloat {
-          0%,100% { transform: translateY(0) rotate(0); }
-          50% { transform: translateY(-2px) rotate(.6deg); }
-        }
-
-        @keyframes tibyanSharedHeartbeatTrace {
-          0% { stroke-dashoffset: 260; opacity: .45; }
-          38% { stroke-dashoffset: 0; opacity: 1; }
-          72% { stroke-dashoffset: 0; opacity: 1; }
-          100% { stroke-dashoffset: -260; opacity: .45; }
-        }
-
-        @media (max-width: 760px) {
-          .home-icon-topbar {
-            width: calc(100% - 12px) !important;
-          }
-
-          .home-brand-button {
-            min-width: 108px !important;
-            height: 42px !important;
-            padding: 2px !important;
-            gap: 7px !important;
-          }
-
-          .home-brand-logo {
-            width: 36px !important;
-            height: 36px !important;
-            flex: 0 0 36px !important;
-          }
-
-          .home-brand-copy strong {
-            font-size: 16px !important;
-          }
-
-          .home-brand-copy small {
-            font-size: 7px !important;
-          }
-
-          .tibyan-shared-header .home-nav-icon {
-            width: 40px;
-            height: 40px;
-            flex-basis: 40px;
-            border-radius: 13px;
-          }
-
-          .tibyan-shared-header .home-nav-icon svg {
-            width: 21px;
-            height: 21px;
-          }
-
-          .tibyan-shared-header-spacer {
-            height: 70px;
-            flex-basis: 70px;
-          }
-        }
-
-        @media (max-width: 390px) {
-          .home-brand-button {
-            min-width: 102px !important;
-            gap: 6px !important;
-          }
-
-          .home-brand-logo {
-            width: 34px !important;
-            height: 34px !important;
-            flex-basis: 34px !important;
-          }
-
-          .home-brand-copy strong {
-            font-size: 15px !important;
-          }
-
-          .home-mobile-menu-button {
-            width: 36px;
-            height: 36px;
-            flex-basis: 36px;
-          }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .home-icon-topbar *,
-          .home-icon-topbar *::before,
-          .home-icon-topbar *::after {
-            animation-duration: .001ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: .001ms !important;
-          }
-        }
+        body.tibyan-shared-header-active .tibyan-header-wrap{display:none!important}
+        .home-icon-topbar,.home-icon-topbar *{box-sizing:border-box}
+        .home-icon-topbar{position:fixed!important;top:6px!important;right:50%!important;z-index:100!important;width:min(calc(100% - 12px),1180px)!important;min-height:58px!important;margin:0!important;padding:6px 8px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;direction:rtl;border:1px solid rgba(7,92,145,.12);border-radius:18px!important;background:rgba(255,255,255,.96)!important;box-shadow:0 14px 36px rgba(3,66,112,.13)!important;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transform:translateX(50%)!important;font-family:var(--font-tibyan,"IBM Plex Sans Arabic"),Tahoma,Arial,sans-serif}
+        .home-icon-topbar button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+        .home-brand-button{width:auto;min-width:150px;height:56px;flex:0 0 auto;display:flex;align-items:center;justify-content:flex-start;gap:10px;padding:4px 7px;border:0;border-radius:18px;background:transparent;text-align:right}
+        .home-brand-logo{width:54px;height:54px;flex:0 0 54px;display:block;animation:homeHeaderLogoFloat 4.6s ease-in-out infinite}
+        .home-brand-logo svg{width:100%;height:100%;display:block;overflow:visible;opacity:1;shape-rendering:geometricPrecision;text-rendering:geometricPrecision;vector-effect:non-scaling-stroke}
+        .home-brand-copy{min-width:0;display:grid;gap:1px;line-height:1}.home-brand-copy strong{display:block;color:#075dab;font-size:20px;font-weight:900;line-height:1.15}.home-brand-copy small{color:#59a0ae;font-size:9px;font-weight:800}
+        .home-top-actions{display:flex;align-items:center;gap:5px}
+        .tibyan-shared-header .home-nav-icon{position:relative;width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;padding:0;border:0;border-radius:0;background:transparent;color:#0876d9;box-shadow:none;cursor:pointer;transition:transform .2s ease,color .2s ease,filter .2s ease;overflow:visible}
+        .tibyan-shared-header .home-nav-icon svg{width:23px;height:23px}
+        .tibyan-shared-header .home-nav-icon:hover,.tibyan-shared-header .home-nav-icon:focus-visible{transform:translateY(-3px);color:#0876d9;outline:none;background:transparent;box-shadow:none}
+        .tibyan-shared-header .home-nav-icon.ai.tibyan-ai-inline-trigger{position:relative!important;overflow:visible!important}
+        .tibyan-shared-header .tibyan-ai-online-dot{right:6px!important;bottom:2px!important}
+        .tibyan-header-ai-status{position:relative;width:50px;height:50px;flex:0 0 50px;display:grid;place-items:center;overflow:visible}
+        .tibyan-header-ai-status>.tibyan-ai-inline-trigger{margin:0!important}
+        .tibyan-header-ai-status.tibyan-ai-resting>.tibyan-ai-inline-trigger,.tibyan-header-ai-status.tibyan-ai-resting>.tibyan-ai-inline-trigger *{animation-play-state:paused!important}
+        .tibyan-ai-status-ui{position:absolute;inset:0;z-index:5;display:block;pointer-events:none;opacity:1;visibility:visible;transition:none!important}
+        .tibyan-header-ai-status.tibyan-ai-is-moving>.tibyan-ai-status-ui{display:none!important;opacity:0!important;visibility:hidden!important}
+        .tibyan-header-ai-status.tibyan-ai-is-still>.tibyan-ai-status-ui{display:block!important;opacity:1!important;visibility:visible!important}
+        .tibyan-ai-ready-hint{position:absolute;top:calc(100% - 2px);left:50%;min-width:23px;transform:translateX(-50%);color:#0869ad;font-size:5.5px;font-weight:900;line-height:1.12;padding:1px 2.2px;border:1px solid rgba(8,118,217,.11);border-radius:5px;background:rgba(255,255,255,.99);box-shadow:0 2px 6px rgba(3,77,132,.07);letter-spacing:0;text-align:center}
+        .tibyan-ai-ready-hint span{display:block;white-space:nowrap}
+        .tibyan-ai-thinking-dots{position:absolute;right:-5px;top:-4px;width:12px;height:17px;display:block;color:#0b79cf}
+        .tibyan-ai-thinking-dots i{position:absolute;display:block;border-radius:50%;background:currentColor;transform-origin:50% 50%;opacity:.28;box-shadow:0 1px 2px rgba(8,118,217,.12);animation:tibyanAiThinkingDot 2.8s ease-in-out infinite}
+        .tibyan-ai-thinking-dots i:nth-child(1){width:2px;height:2px;left:2px;bottom:3px;animation-delay:0s}
+        .tibyan-ai-thinking-dots i:nth-child(2){width:3px;height:3px;left:4px;bottom:6px;animation-delay:.42s}
+        .tibyan-ai-thinking-dots i:nth-child(3){width:4px;height:4px;left:6.4px;bottom:9px;animation-delay:.84s}
+        html[data-tibyan-theme="dark"] .tibyan-ai-ready-hint{color:#dff7ff;background:rgba(7,28,44,.98);border-color:rgba(112,223,234,.15);box-shadow:0 2px 8px rgba(0,0,0,.24)}
+        html[data-tibyan-theme="dark"] .tibyan-ai-thinking-dots{color:#70dfea}
+        .home-settings-button{position:relative;width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;padding:0;border:0!important;border-radius:0!important;background:transparent!important;color:#0876d9;box-shadow:none!important;cursor:pointer;transition:transform .22s ease,color .22s ease,filter .22s ease;overflow:visible}
+        .home-settings-button:hover,.home-settings-button:focus-visible{transform:translateY(-3px) rotate(6deg);color:#0876d9;filter:saturate(1.08);outline:none;background:transparent!important;box-shadow:none!important}
+        .home-settings-button svg{width:23px;height:23px;display:block;filter:drop-shadow(0 2px 3px rgba(3,77,132,.14))}
+        .tibyan-shared-header-spacer{width:100%;height:76px;flex:0 0 76px;pointer-events:none}
+        .home-brand-logo .tibyan-heartbeat{stroke-dasharray:260;stroke-dashoffset:260;animation:tibyanSharedHeartbeatTrace 4.2s linear infinite}.home-brand-logo .tibyan-leaf,.home-brand-logo .tibyan-head,.home-brand-logo .tibyan-blue-arc{animation:none}
+        html[data-tibyan-theme="dark"] .home-icon-topbar{border-color:rgba(127,208,239,.14);background:rgba(8,28,45,.94)!important;box-shadow:0 14px 36px rgba(0,0,0,.28)!important}html[data-tibyan-theme="dark"] .home-brand-copy strong{color:#dff4ff}html[data-tibyan-theme="dark"] .home-brand-copy small{color:#76b8c2}html[data-tibyan-theme="dark"] .home-settings-button{background:transparent!important;color:#62d8ec!important;box-shadow:none!important}
+        @keyframes homeHeaderLogoFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-2px) rotate(.6deg)}}@keyframes tibyanSharedHeartbeatTrace{0%{stroke-dashoffset:260;opacity:.45}38%{stroke-dashoffset:0;opacity:1}72%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:-260;opacity:.45}}
+        @keyframes tibyanAiThinkingDot{0%,100%{opacity:.24;transform:translateY(0) scale(.72)}40%{opacity:.95;transform:translateY(-1.1px) scale(1.08)}70%{opacity:.42;transform:translateY(-.45px) scale(.9)}}
+        @media (max-width:760px){.home-icon-topbar{width:calc(100% - 12px)!important}.home-brand-button{min-width:108px!important;height:42px!important;padding:2px!important;gap:7px!important}.home-brand-logo{width:36px!important;height:36px!important;flex:0 0 36px!important}.home-brand-copy strong{font-size:16px!important}.home-brand-copy small{font-size:7px!important}.tibyan-shared-header .home-nav-icon{width:40px;height:40px;flex-basis:40px}.tibyan-shared-header .home-nav-icon svg{width:21px;height:21px}.home-settings-button{width:40px;height:40px;flex-basis:40px}.home-settings-button svg{width:21px;height:21px}.tibyan-shared-header-spacer{height:70px;flex-basis:70px}}
+        @media (max-width:390px){.home-brand-button{min-width:102px!important;gap:6px!important}.home-brand-logo{width:34px!important;height:34px!important;flex:0 0 34px!important}.home-brand-copy strong{font-size:15px!important}}
+        @media (prefers-reduced-motion:reduce){.home-icon-topbar *,.home-icon-topbar *::before,.home-icon-topbar *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
       `}</style>
     </>
   );
