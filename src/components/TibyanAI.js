@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
  * مساعد تبيان الذكي - مكوّن مشترك لجميع الصفحات.
  * ضع مفتاح Google AI Studio الجديد هنا فقط.
  */
-const GOOGLE_AI_API_KEY = "AQ.Ab8RN6KSEgnDOZkfYQRWDzJY9XwtyU0HnfRaqH5kcG3G-NO8TQ";
+const GOOGLE_AI_API_KEY = "AQ.Ab8RN6JRTWufJHXmou84qj7pkNPlpPh13BQpLwwBtIuG7O_xFQ";
 const GOOGLE_AI_MODELS = ["gemini-3.5-flash", "gemini-3.5-flash-lite"];
 const GOOGLE_AI_STREAM_URL = (model) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse`;
@@ -154,6 +154,87 @@ const WELCOME_MESSAGE = {
   content:
     "مرحباً بك في مساعد تبيان الذكي.\nأنا هنا لإرشادك إلى استخدام خدمات تبيان والتنقل داخل التطبيق.",
 };
+
+/*
+ * نحفظ المحادثة داخل sessionStorage فقط:
+ * - تبقى أثناء التنقل بين صفحات تبيان وإعادة تحميل الصفحة داخل نفس التبويب.
+ * - تُحذف تلقائياً عند إغلاق التبويب/المتصفح.
+ * - ونمسحها كذلك فور اكتشاف الانتقال إلى تسجيل الدخول أو تسجيل الخروج.
+ */
+const TIBYAN_AI_SESSION_STORAGE_KEY = "tibyan-ai-current-session-messages-v1";
+
+function isTibyanAuthPage(locationLike) {
+  if (typeof window === "undefined" && !locationLike) return false;
+
+  const currentLocation = locationLike || window.location;
+  const pathname = String(currentLocation?.pathname || "");
+  const search = String(currentLocation?.search || "");
+  const hash = String(currentLocation?.hash || "");
+  const fullLocation = `${pathname}${search}${hash}`;
+
+  return (
+    /(^|\/)(login|signin|sign-in|logout|signout|sign-out)(\/|$)/i.test(pathname) ||
+    /[?&#](page|screen|view|route)=(login|signin|sign-in|logout|signout|sign-out)(?:[&#]|$)/i.test(fullLocation)
+  );
+}
+
+function clearTibyanAiConversationSession() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.removeItem(TIBYAN_AI_SESSION_STORAGE_KEY);
+  } catch {
+    // في حال كان التخزين غير متاح نكتفي بالمحادثة الموجودة في الذاكرة.
+  }
+}
+
+function sanitizeStoredMessages(value) {
+  if (!Array.isArray(value)) return [WELCOME_MESSAGE];
+
+  const safeMessages = value
+    .filter(
+      (item) =>
+        item &&
+        (item.role === "user" || item.role === "assistant") &&
+        typeof item.content === "string" &&
+        item.content.trim()
+    )
+    .map((item) => ({
+      role: item.role,
+      content: item.content,
+    }));
+
+  return safeMessages.length ? safeMessages : [WELCOME_MESSAGE];
+}
+
+function loadTibyanAiConversationSession() {
+  if (typeof window === "undefined") return [WELCOME_MESSAGE];
+
+  if (isTibyanAuthPage()) {
+    clearTibyanAiConversationSession();
+    return [WELCOME_MESSAGE];
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(TIBYAN_AI_SESSION_STORAGE_KEY);
+    if (!raw) return [WELCOME_MESSAGE];
+    return sanitizeStoredMessages(JSON.parse(raw));
+  } catch {
+    return [WELCOME_MESSAGE];
+  }
+}
+
+function saveTibyanAiConversationSession(messages) {
+  if (typeof window === "undefined" || isTibyanAuthPage()) return;
+
+  try {
+    window.sessionStorage.setItem(
+      TIBYAN_AI_SESSION_STORAGE_KEY,
+      JSON.stringify(sanitizeStoredMessages(messages))
+    );
+  } catch {
+    // لا نكسر المحادثة إذا امتلأ التخزين أو كان محظوراً في المتصفح.
+  }
+}
 
 function AiIcon(props) {
   const { className = "", ...rest } = props || {};
@@ -740,7 +821,7 @@ ${getCurrentPageContext() || "لا توجد نصوص إضافية متاحة ح�
 export default function TibyanAI({ variant = "global-header" }) {
   const [open, setOpen] = useState(false);
   const [headerMount, setHeaderMount] = useState(null);
-  const [messages, setMessages] = useState([WELCOME_MESSAGE]);
+  const [messages, setMessages] = useState(() => loadTibyanAiConversationSession());
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -898,6 +979,114 @@ ${TIBYAN_AI_CLOSING_MESSAGE}`;
       setLoading(false);
     }
   }
+
+  useEffect(() => {
+    saveTibyanAiConversationSession(messages);
+  }, [messages]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const resetConversationForLoggedOutState = () => {
+      clearTibyanAiConversationSession();
+      setMessages([WELCOME_MESSAGE]);
+      setInput("");
+      setError("");
+      setStreamingText("");
+      setStreaming(false);
+      setLoading(false);
+    };
+
+    const clearIfAuthPage = () => {
+      if (isTibyanAuthPage()) {
+        resetConversationForLoggedOutState();
+        return true;
+      }
+      return false;
+    };
+
+    const looksLikeLogoutControl = (element) => {
+      if (!element) return false;
+      const label = [
+        element.textContent || "",
+        element.getAttribute?.("aria-label") || "",
+        element.getAttribute?.("title") || "",
+      ]
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      return /(^|\s)(تسجيل\s*الخروج|تسجيل\s*خروج|خروج|logout|log\s*out|sign\s*out)(\s|$)/i.test(label);
+    };
+
+    const onDocumentClick = (event) => {
+      const control = event.target?.closest?.("a[href],button,[role='button']");
+      if (!control) return;
+
+      if (looksLikeLogoutControl(control)) {
+        resetConversationForLoggedOutState();
+        return;
+      }
+
+      if (control.matches?.("a[href]")) {
+        try {
+          const targetUrl = new URL(control.href, window.location.href);
+          if (targetUrl.origin === window.location.origin && isTibyanAuthPage(targetUrl)) {
+            resetConversationForLoggedOutState();
+          }
+        } catch {
+          // نتجاهل الروابط غير القابلة للتحليل.
+        }
+      }
+    };
+
+    const LOCATION_CHANGE_EVENT = "tibyan-ai-location-change";
+    const originalPushState = window.history.pushState;
+    const originalReplaceState = window.history.replaceState;
+
+    const patchedPushState = function (...args) {
+      const result = originalPushState.apply(this, args);
+      window.dispatchEvent(new Event(LOCATION_CHANGE_EVENT));
+      return result;
+    };
+
+    const patchedReplaceState = function (...args) {
+      const result = originalReplaceState.apply(this, args);
+      window.dispatchEvent(new Event(LOCATION_CHANGE_EVENT));
+      return result;
+    };
+
+    window.history.pushState = patchedPushState;
+    window.history.replaceState = patchedReplaceState;
+
+    const onLocationChange = () => {
+      clearIfAuthPage();
+    };
+
+    document.addEventListener("click", onDocumentClick, true);
+    window.addEventListener("popstate", onLocationChange);
+    window.addEventListener("hashchange", onLocationChange);
+    window.addEventListener(LOCATION_CHANGE_EVENT, onLocationChange);
+
+    clearIfAuthPage();
+
+    return () => {
+      document.removeEventListener("click", onDocumentClick, true);
+      window.removeEventListener("popstate", onLocationChange);
+      window.removeEventListener("hashchange", onLocationChange);
+      window.removeEventListener(LOCATION_CHANGE_EVENT, onLocationChange);
+
+      if (window.history.pushState === patchedPushState) {
+        window.history.pushState = originalPushState;
+      }
+      if (window.history.replaceState === patchedReplaceState) {
+        window.history.replaceState = originalReplaceState;
+      }
+
+      // لو أزيل المكوّن لأن التطبيق انتقل فعلاً إلى صفحة الدخول/الخروج، نمسح الجلسة.
+      clearIfAuthPage();
+    };
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
